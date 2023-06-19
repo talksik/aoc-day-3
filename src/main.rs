@@ -41,6 +41,7 @@ fn get_sum_priorities_errors(rucksacks: Vec<String>) -> u32 {
                 // we have found the error
                 let priority = item.get_priority();
                 total_priority_errors += priority;
+                // break out so that we don't double count the error if it appears twice
                 break;
             }
         }
