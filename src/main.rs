@@ -50,6 +50,53 @@ fn get_sum_priorities_errors(rucksacks: Vec<String>) -> u32 {
     total_priority_errors
 }
 
+struct Group {
+    rucksacks: [String; 3],
+}
+
+impl Group {
+    // get first occurence of the first rucksack's commonality with other two rucksacks
+    pub fn get_common_item(&self) -> Item {
+        for item in self.rucksacks[0].chars() {
+            // convert char to &str
+            let item_string = item.to_string();
+            let item = Item::from_str(&item_string);
+            if self.rucksacks[1].contains(&item_string) && self.rucksacks[2].contains(&item_string)
+            {
+                return item;
+            }
+        }
+
+        panic!("no common item found");
+    }
+}
+
+// get the item of each group that is common to all rucksacks
+// get the priority of that item
+fn get_priority_all_groups_badge(rucksacks: Vec<String>) -> u32 {
+    let mut total_badges_priorities = 0;
+
+    // organize the rucksacks into groups of 3
+    let mut i = 0;
+    while i < rucksacks.len() {
+        let group = Group {
+            rucksacks: [
+                rucksacks[i].to_string(),
+                rucksacks[i + 1].to_string(),
+                rucksacks[i + 2].to_string(),
+            ],
+        };
+
+        let common_item = group.get_common_item();
+        let prioriy = common_item.get_priority();
+        total_badges_priorities += prioriy;
+
+        i += 3;
+    }
+
+    total_badges_priorities
+}
+
 fn read_input_file(file_name: &str) -> Vec<String> {
     use std::fs::File;
     use std::io::Read;
@@ -71,16 +118,20 @@ fn main() {
 
     let input = read_input_file("input.txt");
 
-    let total_priority_errors = get_sum_priorities_errors(input);
+    let total_priority_errors = get_sum_priorities_errors(input.clone());
     println!("total priority errors: {}", total_priority_errors);
+
+    let total_badges_priorities = get_priority_all_groups_badge(input);
+    println!("total badges priorities: {}", total_badges_priorities);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    // part 1
     #[test]
-    fn test_base_case() {
+    fn test_total_errors() {
         let input: Vec<String> = vec![
             "vJrwpWtwJgWrhcsFMMfFFhFp".to_string(),
             "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL".to_string(),
@@ -90,5 +141,19 @@ mod tests {
             "CrZsJsPPZsGzwwsLwLmpwMDw".to_string(),
         ];
         assert_eq!(get_sum_priorities_errors(input), 157);
+    }
+
+    // part 2
+    #[test]
+    fn test_badge_priorities() {
+        let input: Vec<String> = vec![
+            "vJrwpWtwJgWrhcsFMMfFFhFp".to_string(),
+            "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL".to_string(),
+            "PmmdzqPrVvPwwTWBwg".to_string(),
+            "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn".to_string(),
+            "ttgJtRGJQctTZtZT".to_string(),
+            "CrZsJsPPZsGzwwsLwLmpwMDw".to_string(),
+        ];
+        assert_eq!(get_priority_all_groups_badge(input), 70);
     }
 }
